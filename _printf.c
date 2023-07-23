@@ -1,88 +1,75 @@
 #include <stdio.h>
 #include <stdarg.h>
 
-/**
- * _printf - Printf function
- * @format: format.
- * Return: Printed chars.
- */
+#define BUFF_SIZE 1024 
 
+/**
+ * _printf - Simplified printf function.
+ * @format: Format string.
+ * Return: Number of characters printed.
+ */
 int _printf(const char *format, ...)
 {
-    int counter = 0, num, num_char;
-    char current_char, c, *str, buffer[12];
+    va_list args;
+    va_start(args, format);
 
-    va_list list;
-    va_start(list, format);
+    int char_count = 0; 
+    char buffer[BUFF_SIZE]; 
+    int buff_ind = 0; 
 
-    while ((current_char = *format) != '\0')
+    while (*format)
     {
-        if (current_char == '%')
+        if (*format != '%')
         {
-            format++;
-            current_char = *format;
+            buffer[buff_ind++] = *format;
 
-            if (current_char == '\0')
+            if (buff_ind == BUFF_SIZE)
             {
-                putchar('%');
-                counter++;
-                break;
-            }
-
-            if (current_char == 'c')
-            {
-                c = va_arg(list, int);
-                putchar(c);
-                counter++;
-            }
-            else if (current_char == 's')
-            {
-                str = va_arg(list, char *);
-                while (*str != '\0')
-                {
-                    putchar(*str);
-                    str++;
-                    counter++;
-                }
-            }
-            else if (current_char == 'd' || current_char == 'i')
-            {
-                num = va_arg(list, int);
-                num_char = sprintf(buffer, "%d", num);
-                printf("%s", buffer);
-                counter += num_char;
-            }
-            else if (*format == 'b')
-            {
-                unsigned int bun = va_arg(list, unsigned int);
-                int num_bits = sizeof(unsigned int) + 3;
-                for (int i = num_bits - 1; i >= 0; i--)
-                {
-                    int bit = (bun >> i) & 1;
-                    putchar('0' + bit);
-                    counter++;
-                }
-            }
-            else if (current_char == '%')
-            {
-                putchar('%');
-                counter++;
+                write(1, buffer, buff_ind);
+                char_count += buff_ind;
+                buff_ind = 0;
             }
             else
             {
-                putchar('%');
-                putchar(current_char);
-                counter += 2;
+                char_count++;
             }
         }
         else
         {
-            putchar(current_char);
-            counter++;
+            format++;
+
+            if (*format == 'c')
+            {
+                char c = va_arg(args, int);
+                buffer[buff_ind++] = c;
+                char_count++;
+            }
+            else if (*format == 's')
+            {
+                char *str = va_arg(args, char *);
+                while (*str)
+                {
+                    buffer[buff_ind++] = *str;
+                    char_count++;
+                    str++;
+                    if (buff_ind == BUFF_SIZE)
+                    {
+                        write(1, buffer, buff_ind);
+                        buff_ind = 0;
+                    }
+                }
+            }
+
+            format++;
         }
-        format++;
     }
 
-    va_end(list);
-    return counter;
+    if (buff_ind > 0)
+    {
+        write(1, buffer, buff_ind);
+        char_count += buff_ind;
+    }
+
+    va_end(args);
+    return char_count;
 }
