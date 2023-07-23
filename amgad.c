@@ -45,10 +45,12 @@ int _printf(const char *format, ...)
 				printf("%s", buffer);
 				counter += num_char;
 			}
-			else if (*format == 'b') {
+			else if (*format == 'b')
+			{
 				unsigned int bun = va_arg(list, unsigned int);
 				int num_bits = sizeof(unsigned int) + 3;
-				for (int i = num_bits - 1; i >= 0; i--) {
+				for (int i = num_bits - 1; i >= 0; i--)
+				{
 					int bit = (bun >> i) & 1;
 					putchar('0' + bit);
 					counter++;
@@ -74,5 +76,5 @@ int _printf(const char *format, ...)
 		format++;
 	}
 	va_end(list);
-	return counter;
+	return (counter);
 }
